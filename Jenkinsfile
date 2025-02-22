@@ -20,21 +20,21 @@ pipeline {
             }
         }
 
-        // stage('Build and Start Containers') {
-        //     steps {
-        //         script {
-        //             sh 'docker-compose -f docker-compose.yml up -d'
-        //         }
-        //     }
-        // }
+        stage('Build and Start Containers') {
+            steps {
+                script {
+                    sh 'docker-compose -f docker-compose.yml up -d'
+                }
+            }
+        }
 
-        // stage('Liquibase Migration') {
-        //     steps {
-        //         script {
-        //             sh 'docker compose exec liquibase liquibase --defaultsFile=liquibase.properties update'
-        //         }
-        //     }
-        // }
+        stage('Liquibase Migration') {
+            steps {
+                script {
+                    sh 'docker compose exec liquibase liquibase --defaultsFile=liquibase.properties update'
+                }
+            }
+        }
 
         //  stage('Liquibase Migration') {
         //     steps {
@@ -54,12 +54,12 @@ pipeline {
             }
         }
 
-        // stage('Stop Containers') {
-        //     steps {
-        //         script {
-        //             sh 'docker-compose down -v'
-        //         }
-        //     }
-        // }
+        stage('Stop Containers') {
+            steps {
+                script {
+                    sh 'docker-compose down -v'
+                }
+            }
+        }
     }
 }
