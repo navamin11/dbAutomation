@@ -2,7 +2,7 @@ FROM jenkins/jenkins:lts as jenkins-master
 
 USER root
 
-# ติดตั้งแพ็กเกจที่จำเป็น ได้แก่ git, curl, maven, docker, sudo และ Docker Compose
+# ติดตั้งแพ็กเกจที่จำเป็น ได้แก่ git, curl, maven, docker, sudo และ Docker Compose v2
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -15,16 +15,11 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     && apt-get clean
 
-# ตั้งค่า Docker Compose version ที่ต้องการ
-ENV DOCKER_COMPOSE_VERSION 1.29.2
+# ติดตั้ง Docker Compose v2 ผ่าน Docker CLI plugin
+RUN curl -fsSL https://get.docker.com | sh
+RUN apt-get install docker-compose-plugin
 
-# ดาวน์โหลด Docker Compose (ไม่ใช้การขยายตัวแปรในคำสั่ง curl)
-RUN curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-
-# ทำให้ Docker Compose executable
-RUN chmod +x /usr/local/bin/docker-compose
-
-# ตรวจสอบว่า Docker Compose ติดตั้งสำเร็จ
-RUN docker-compose --version
+# ตรวจสอบว่า Docker Compose v2 ติดตั้งสำเร็จ
+RUN docker compose version
 
 USER jenkins
