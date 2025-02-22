@@ -1,0 +1,66 @@
+# ตั้งค่าชื่อ container และ network
+DB_CONTAINER=postgres-db
+JENKINS_CONTAINER=jenkins-server
+LIQUIBASE_IMAGE=liquibase/liquibase
+NETWORK_DB=db.network
+
+# คำสั่งสำหรับเริ่มระบบทั้งหมด
+up:
+	docker compose up -d
+
+# คำสั่งสำหรับหยุดและลบ container ทั้งหมด
+down:
+	docker compose down -v
+
+# คำสั่งสำหรับดู log ของ Jenkins
+logs-jenkins:
+	docker logs -f $(JENKINS_CONTAINER)
+
+# คำสั่งสำหรับดู log ของ PostgreSQL
+logs-db:
+	docker logs -f $(DB_CONTAINER)
+
+# คำสั่งสำหรับ Liquibase Migration
+migrate:
+	docker run --rm --network=$(NETWORK_DB) \
+	-v $(PWD)/liquibase:/liquibase \
+	$(LIQUIBASE_IMAGE) --defaultsFile=/liquibase/liquibase.properties update
+
+# คำสั่งสำหรับ rollback การเปลี่ยนแปลงล่าสุดของ Liquibase
+rollback:
+	docker run --rm --network=$(NETWORK_DB) \
+	-v $(PWD)/liquibase:/liquibase \
+	$(LIQUIBASE_IMAGE) --defaultsFile=/liquibase/liquibase.properties rollbackCount 1
+
+# คำสั่งสำหรับดู status ของ migration
+status:
+	docker run --rm --network=$(NETWORK_DB) \
+	-v $(PWD)/liquibase:/liquibase \
+	$(LIQUIBASE_IMAGE) --defaultsFile=/liquibase/liquibase.properties status
+
+# คำสั่งสำหรับ force rebuild Docker image และ containers
+rebuild:
+	docker compose down
+	docker compose build
+	docker compose up -d
+
+# คำสั่งสำหรับ restart Jenkins
+restart-jenkins:
+	docker restart $(JENKINS_CONTAINER)
+
+# คำสั่งสำหรับ restart PostgreSQL
+restart-db:
+	docker restart $(DB_CONTAINER)
+	
+clean:
+	@echo "\033[0;32mRemoving all Docker images and Clear Port ${port}\033[0m"
+	# @docker image prune -f
+	# @docker container stop $(docker container ls -aq) || true
+	# @docker container rm $(docker container ls -aq) || true
+	# @docker rmi $$(docker images -q) || true
+	# @kill -9 $$(lsof -t -i:${port})
+	@docker stop $(docker ps -qa) 
+	@docker rm $(docker ps -qa)
+	@docker rmi -f $(docker images -qa) 
+	@docker volume rm $(docker volume ls -q)
+	@docker network rm $(docker network ls -q)

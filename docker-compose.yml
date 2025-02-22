@@ -1,0 +1,57 @@
+networks:
+  jenkins.network:
+  db.network:
+
+volumes:
+  jenkins_home:
+  postgres_data:
+
+services:
+  postgres:
+    image: postgres:alpine
+    container_name: postgres-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: pagila
+      PGDATA: /var/lib/postgresql/data
+      TZ: Asia/Bangkok
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/pagila-schema.sql:/docker-entrypoint-initdb.d/1-pagila-schema.sql
+      - ./db/pagila-data.sql:/docker-entrypoint-initdb.d/2-pagila-data.sql
+    networks:
+      - db.network
+
+  liquibase:
+    image: liquibase/liquibase:latest
+    container_name: liquibase-migration
+    volumes:
+      - ./liquibase:/liquibase
+    working_dir: /liquibase
+    entrypoint: [ "liquibase" ]
+    command: ["--defaultsFile=liquibase.properties", "update"]
+    networks:
+      - db.network
+    depends_on:
+      - postgres
+
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile-jenkins
+      target: jenkins-master
+    container_name: jenkins-server
+    restart: always
+    ports:
+      - 8080:8080
+      - 50000:50000
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    networks:
+      - jenkins.network
+    depends_on:
+      - postgres

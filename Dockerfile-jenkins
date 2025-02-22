@@ -1,0 +1,31 @@
+FROM jenkins/jenkins:lts as jenkins-master
+
+USER root
+# Install required packages -> git, tzdata, bash, sudo, curl, maven, tini
+# RUN apk update && \
+#     apk add --no-cache \
+#     tzdata \
+#     bash \
+#     sudo \
+#     curl \
+#     maven \
+#     tini && \
+#     mkdir -p /root/.ssh /var/log/jenkins /var/cache/jenkins && \
+#     chown -R jenkins:jenkins /var/log/jenkins /var/cache/jenkins && \
+#     rm -rf /var/cache/apk/*
+
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    maven \
+    docker.io \
+    sudo \
+    && apt-get clean
+
+USER jenkins
+
+# ENV JAVA_OPTS="-Xmx8192m"
+
+# ENTRYPOINT ["/sbin/tini", "--"]
+
+# CMD ["/usr/local/bin/jenkins.sh"]
