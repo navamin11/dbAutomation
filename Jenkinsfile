@@ -6,9 +6,17 @@ pipeline {
     }
 
     stages {
+        stage('Check Docker Compose') {
+            steps {
+                script {
+                    sh 'docker-compose --version'
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
-                git 'https://github.com/your-repo/project.git'
+                git 'https://github.com/navamin11/dbAutomation.git'
             }
         }
 
@@ -23,7 +31,7 @@ pipeline {
         stage('Liquibase Migration') {
             steps {
                 script {
-                    sh 'docker-compose exec liquibase liquibase --defaultsFile=liquibase.properties update'
+                    sh 'docker compose exec liquibase liquibase --defaultsFile=liquibase.properties update'
                 }
             }
         }

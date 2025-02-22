@@ -10,14 +10,14 @@ colima:
 
 clean:
 	@echo "\033[0;32mRemoving all Docker images and Clear Port ${port}\033[0m"
-	# @docker image prune -f
-	# @docker container stop $(docker container ls -aq) || true
-	# @docker container rm $(docker container ls -aq) || true
-	# @docker rmi $$(docker images -q) || true
-	# @kill -9 $$(lsof -t -i:${port})
-	@docker stop $(docker ps -qa) 
-	@docker rm $(docker ps -qa)
-	@docker rmi -f $(docker images -qa) 
+	@docker image prune -f
+	@docker container stop $(docker container ls -aq) || true
+	@docker container rm $(docker container ls -aq) || true
+	@docker rmi $$(docker images -q) || true
+	@kill -9 $$(lsof -t -i:${port})
+	# @docker stop $(docker ps -qa) 
+	# @docker rm $(docker ps -qa)
+	# @docker rmi -f $(docker images -qa) 
 	@docker volume rm $(docker volume ls -q)
 	@docker network rm $(docker network ls -q)
 	
@@ -39,11 +39,11 @@ rebuild:
 	@docker compose up -d
 
 rebuild-all:
-	# @docker container stop $(docker container ls -aq) || true
-	# @docker container rm $(docker container ls -aq) || true
-	# @kill -9 $$(lsof -t -i:${port}) || true
-	# @docker compose down
-	# @docker image prune -f 
+	@docker container stop $(docker container ls -aq) || true
+	@docker container rm $(docker container ls -aq) || true
+	@kill -9 $$(lsof -t -i:${port}) || true
+	@docker compose down
+	@docker image prune -f 
 	@docker compose build --no-cache
 	@docker compose up
 

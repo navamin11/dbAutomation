@@ -1,31 +1,30 @@
 FROM jenkins/jenkins:lts as jenkins-master
 
 USER root
-# Install required packages -> git, tzdata, bash, sudo, curl, maven, tini
-# RUN apk update && \
-#     apk add --no-cache \
-#     tzdata \
-#     bash \
-#     sudo \
-#     curl \
-#     maven \
-#     tini && \
-#     mkdir -p /root/.ssh /var/log/jenkins /var/cache/jenkins && \
-#     chown -R jenkins:jenkins /var/log/jenkins /var/cache/jenkins && \
-#     rm -rf /var/cache/apk/*
 
+# ติดตั้งแพ็กเกจที่จำเป็น ได้แก่ git, curl, maven, docker, sudo และ Docker Compose
 RUN apt-get update && apt-get install -y \
     git \
     curl \
     maven \
     docker.io \
     sudo \
+    lsb-release \
+    ca-certificates \
+    apt-transport-https \
+    gnupg \
     && apt-get clean
 
+# ตั้งค่า Docker Compose version ที่ต้องการ
+ENV DOCKER_COMPOSE_VERSION 1.29.2
+
+# ดาวน์โหลด Docker Compose (ไม่ใช้การขยายตัวแปรในคำสั่ง curl)
+RUN curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+# ทำให้ Docker Compose executable
+RUN chmod +x /usr/local/bin/docker-compose
+
+# ตรวจสอบว่า Docker Compose ติดตั้งสำเร็จ
+RUN docker-compose --version
+
 USER jenkins
-
-# ENV JAVA_OPTS="-Xmx8192m"
-
-# ENTRYPOINT ["/sbin/tini", "--"]
-
-# CMD ["/usr/local/bin/jenkins.sh"]
